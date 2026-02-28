@@ -1,10 +1,10 @@
 import streamlit as st
 from agent import run_agent
 
-st.set_page_config(page_title="AI Agent MVP", page_icon="🤖")
+st.set_page_config(page_title="Benjamin AI stock advisor", page_icon="🤖")
 
-st.title("🤖 AI Agent MVP")
-st.write("MVP público com Streamlit + OpenAI")
+st.title("🤖 Benjamin AI stock advisor")
+st.write("AI agent to provide input on stocks")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
