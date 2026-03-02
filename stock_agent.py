@@ -1,45 +1,44 @@
+# stock_agent.py
 import yfinance as yf
 from openai import OpenAI
 import os
+import time
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 SYSTEM_PROMPT = """
 És um analista financeiro.
-Recebes dados reais de um stock e deves gerar:
-
-1. summary (1 frase)
-2. story (2–3 frases de contexto)
-
+Gera:
+- summary (1 frase)
+- story (2–3 frases)
 Não inventes números.
-Não devolvas JSON inválido.
 """
 
 def run_stock_agent(ticker: str) -> dict:
+    # delay defensivo (CRÍTICO)
+    time.sleep(2)
+
     stock = yf.Ticker(ticker)
-    hist = stock.history(period="2d")
 
-    if hist.empty or len(hist) < 2:
-        raise ValueError(f"Sem dados suficientes para {ticker}")
+    try:
+        info = stock.fast_info
+        price = round(info["last_price"], 2)
+        prev_close = info["previous_close"]
 
-    yesterday = hist.iloc[-2]
-    today = hist.iloc[-1]
+        change_pct = round(
+            ((price - prev_close) / prev_close) * 100, 2
+        )
 
-    price = round(today["Close"], 2)
-    change_pct = round(
-        ((today["Close"] - yesterday["Close"]) / yesterday["Close"]) * 100,
-        2
-    )
+        company_name = stock.info.get("shortName", ticker)
 
-    company_name = stock.info.get("shortName", ticker)
+    except Exception as e:
+        raise ValueError("Rate limit ou dados indisponíveis")
 
     llm_input = f"""
 Ticker: {ticker}
 Empresa: {company_name}
-Preço atual: {price} USD
+Preço: {price} USD
 Variação diária: {change_pct}%
-
-Gera apenas texto.
 """
 
     response = client.chat.completions.create(
@@ -52,15 +51,16 @@ Gera apenas texto.
     )
 
     text = response.choices[0].message.content.strip()
+    lines = text.split("\n")
 
-    # separação simples e segura
-    summary, story = text.split("\n", 1) if "\n" in text else (text, text)
+    summary = lines[0]
+    story = " ".join(lines[1:]) if len(lines) > 1 else summary
 
     return {
         "ticker": ticker,
         "company": company_name,
         "price_usd": price,
         "change_pct": change_pct,
-        "summary": summary.strip(),
-        "story": story.strip()
+        "summary": summary,
+        "story": story
     }
