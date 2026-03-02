@@ -5,7 +5,7 @@ from tools import update_stock_knowledge
 st.title("🤖 Benjamin — Investment Agent")
 
 if st.button("🔄 Update stock knowledge"):
-    watchlist = ["AAPL", "MSFT", "NVDA", "TSLA"]
+    watchlist = ["AAPL", "MSFT", "NVDA", "TSLA", "BRKB"]
     msg = update_stock_knowledge(watchlist)
     st.success(msg)
 
