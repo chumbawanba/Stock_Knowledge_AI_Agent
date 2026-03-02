@@ -1,0 +1,13 @@
+{
+  "last_updated": "2026-02-28T12:10:00Z",
+  "watchlist": [
+    {
+      "ticker": "AAPL",
+      "company": "Apple Inc.",
+      "price_usd": 182.34,
+      "change_pct": 1.2,
+      "summary": "Apple subiu após sessão positiva no setor tecnológico.",
+      "story": "O movimento reflete sentimento positivo após resultados recentes, com investidores focados no crescimento dos serviços."
+    }
+  ]
+}
